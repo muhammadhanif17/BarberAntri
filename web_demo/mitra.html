@@ -13,141 +13,233 @@
     <b>💈 BarberAntri <span class="text-muted" style="font-weight:400">Mitra</span></b>
     <button data-v="v-dash" class="on">📊 Dashboard</button>
     <button data-v="v-list">📋 Antrean</button>
+    <button data-v="v-cari">🔍 Cari Tiket</button>
     <button data-v="v-report">📈 Laporan</button>
-    <button data-v="v-actions">⚙️ Aksi & Layanan</button>
-    <button class="btn-primary" onclick="openWalkin()">➕ Walk-in</button>
+    <button data-v="v-profil">👤 Profil</button>
+    <button class="btn-primary" onclick="go('walkin')">➕ Walk-in</button>
   </aside>
   <div class="partner-main">
-  <div id="v-dash"></div>
-  <div id="v-list" class="hidden"></div>
-  <div id="v-actions" class="hidden"></div>
-  <div id="v-report" class="hidden"></div>
+    <nav class="topnav"><b>💈 BarberAntri Mitra</b>
+      <button onclick="go('dash')">Dashboard</button>
+      <button onclick="go('list')">Antrean</button>
+      <button onclick="go('report')">Laporan</button>
+      <button onclick="go('profil')">Profil</button>
+    </nav>
+    <div id="v-dash"></div>
+    <div id="v-list" class="hidden"></div>
+    <div id="v-cari" class="hidden"></div>
+    <div id="v-actions" class="hidden"></div>
+    <div id="v-walkin" class="hidden"></div>
+    <div id="v-report" class="hidden"></div>
+    <div id="v-profil" class="hidden"></div>
   </div>
   <nav class="bottomnav" id="pnav">
-    <button data-v="v-dash" class="on">📊<br>Dashboard</button>
-    <button data-v="v-list">📋<br>Antrean</button>
-    <button onclick="openWalkin()">➕<br>Walk-in</button>
-    <button data-v="v-report">📈<br>Laporan</button>
-    <button data-v="v-actions">⚙️<br>Aksi</button>
+    <button data-v="v-dash" class="on"><span class="ic">📊</span>Dashboard</button>
+    <button data-v="v-list"><span class="ic">📋</span>Antrean</button>
+    <button data-v="v-cari" class="fab">🔍</button>
+    <button data-v="v-report"><span class="ic">📈</span>Laporan</button>
+    <button data-v="v-profil"><span class="ic">👤</span>Profil</button>
   </nav>
-</div>
-<div id="walkinModal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:flex-end;justify-content:center">
-  <div class="card" style="width:100%;max-width:28rem;border-radius:1.25rem 1.25rem 0 0">
-    <b>+ Tambah Walk-in</b>
-    <label class="lbl">Nama pelanggan</label><input id="w-name" class="inp" value="Budi Santoso">
-    <label class="lbl">No WhatsApp</label><input id="w-phone" class="inp" value="0813-2244-9988">
-    <button class="btn-primary" onclick="saveWalkin()">+ Tambah Antrean</button>
-    <button class="btn-ghost mt-2" onclick="document.getElementById('walkinModal').classList.add('hidden')">Tutup</button>
-  </div>
 </div>
 <script src="fake_db.js"></script>
 <script src="app.js"></script>
 <script>
 const s = FakeDB.require('mitra');
-function show(id) {
-  ['v-dash', 'v-list', 'v-actions', 'v-report'].forEach(v => document.getElementById(v).classList.add('hidden'));
-  document.getElementById(id).classList.remove('hidden');
-  document.querySelectorAll('#pnav button[data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === id));
-  document.querySelectorAll('#snav button[data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === id));
+const VIEWS = ['dash', 'list', 'cari', 'actions', 'walkin', 'report', 'profil'];
+function go(v) {
+  renderAll();
+  VIEWS.forEach(x => document.getElementById('v-' + x).classList.add('hidden'));
+  document.getElementById('v-' + v).classList.remove('hidden');
+  document.querySelectorAll('#pnav button[data-v], #snav button[data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === 'v-' + v));
   window.scrollTo(0, 0);
 }
-  document.querySelectorAll('#pnav button[data-v]').forEach(b => b.onclick = () => { renderAll(); show(b.dataset.v); });
-  document.querySelectorAll('#snav button[data-v]').forEach(b => b.onclick = () => { renderAll(); show(b.dataset.v); });
-function renderAll() { renderDash(); renderList(); renderActions(); renderReport(); }
+document.querySelectorAll('#pnav button[data-v], #snav button[data-v]').forEach(b => b.onclick = () => go(b.dataset.v.slice(2)));
+function renderAll() { renderDash(); renderList(); renderCariTiket(''); renderActions(); renderWalkin(); renderReport(); renderProfil(); }
+
+const TICKETS = () => LiveQueue.load();
+
 function renderDash() {
-  const q = LiveQueue.load();
+  const q = TICKETS();
   document.getElementById('v-dash').innerHTML = `
-    <h2 class="text-lg font-extrabold mt-4">💈 ${s.name}</h2>
-    <span class="chip">MITRA AKTIF • Online Open</span>
-    <div class="dash-grid mt-2">
-    <div>
-    <div class="card-dark" style="text-align:center">
-      <div class="text-xs opacity-70">ANTREAN SEDANG BERJALAN</div>
-      <div style="font-size:2.5rem;font-weight:900">${q.nowServing}</div>
-      <div class="text-sm opacity-70">Rian "The Razor" • Low Fade Cut</div>
-      <div class="grid2 text-sm mt-2">
-        <div>Berikutnya<br><b>${q.waiting[0]?.code || '-'}</b></div>
-        <div>Menunggu<br><b>${q.waiting.length} Orang</b></div>
-      </div>
-    </div>
-    <div class="grid2">
-      <button class="btn-ghost" onclick="openWalkin()">👤 Input Walk-in</button>
-      <button class="btn-ghost" onclick="callNext()">📢 Panggil Next</button>
-    </div>
-    </div>
-    <div>
-    <div class="card mt-3"><b>Status Kursi & Kapster</b>
-      <div class="text-sm">🟢 Rian — Sibuk (~12mnt)</div>
-      <div class="text-sm">🟢 Anton — Siap Panggil</div>
-      <div class="text-sm">🟡 Ben — Break (15mnt)</div></div>
+    <div class="m-head"><div class="avatar">VC</div>
+      <div><span class="chip chip-mint">MITRA AKTIF ●</span><br><b>Vintage Cut Studio</b></div>
+      <button class="bell" onclick="toast('Walk-in baru: Budi Santoso (simulasi)')">🔔</button></div>
+    <div class="dash-grid"><div>
+      <div class="card" style="text-align:center">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <b class="text-sm">● ANTREAN SEDANG BERJALAN</b><span class="chip chip-mint">Status: Online • Open</span></div>
+        <div class="text-sm text-muted">Sedang Dicukur (Meja 1 & 2)</div>
+        <div style="font-size:2.6rem;font-weight:900">${q.nowServing}</div>
+        <div class="text-sm">Rian "The Razor" • Low Fade Cut</div>
+        <div class="grid2 text-sm mt-2" style="grid-template-columns:repeat(3,1fr)">
+          <div>Berikutnya<br><b>${q.waiting[0]?.code || '-'}</b></div>
+          <div>Menunggu<br><b>${q.waiting.length} Orang</b></div>
+          <div>Total Hari Ini<br><b>38 Tamu</b></div></div></div>
+      <div class="text-sm mt-2" style="display:flex;justify-content:space-between"><b>Aksi Cepat Kasir / Barber</b><span class="text-muted">One-Tap Action</span></div>
+      <div class="qicons">
+        <button onclick="go('walkin')"> <span>➕</span><br>Input Walk-in</button>
+        <button onclick="callNext()"> <span>📢</span><br>Panggil Next</button>
+        <button onclick="toast('3 kapster bertugas (simulasi)')"> <span>💈</span><br>Data Kapster</button>
+        <button onclick="go('actions')"> <span>⚙️</span><br>Setelan Toko</button></div>
+    </div><div>
+      <div class="text-sm" style="display:flex;justify-content:space-between"><b>Status Kursi & Kapster</b><span class="chip">3 Siap Bertugas</span></div>
+      <div class="card rowitem mt-2"><div class="avatar">R</div><div><b>Rian "The Razor"</b><br><span class="text-sm text-muted">Kursi 01 • Sedang cukur ${q.nowServing}</span></div><span class="chip" style="margin-left:auto">Sibuk (~12m)</span></div>
+      <div class="card rowitem"><div class="avatar">A</div><div><b>Anton FadeMaster</b><br><span class="text-sm text-muted">Kursi 02 • Bersiap ${q.waiting[0]?.code || '-'}</span></div><span class="chip chip-mint" style="margin-left:auto">Siap Panggil</span></div>
+      <div class="card rowitem"><div class="avatar">B</div><div><b>Ben Junior</b><br><span class="text-sm text-muted">Kursi 03 • Istirahat</span></div><span class="chip" style="margin-left:auto">Break (15m)</span></div>
     </div></div>`;
 }
+
 function renderList() {
-  const q = LiveQueue.load();
+  const q = TICKETS();
   document.getElementById('v-list').innerHTML = `
-    <h2 class="text-lg font-extrabold mt-4">Daftar Antrean Real-Time</h2>
-    <div class="card" style="background:#FFEDED"><b style="color:#E5484D">${q.nowServing} — Sedang Cukur</b><br>
-      <span class="text-sm text-muted">Mulai 10:15 WIB • Estimasi selesai 10:35</span></div>
-    <b>Antrean Menunggu (${q.waiting.length})</b>
+    <div class="m-head"><button class="iconbtn" onclick="go('dash')">‹</button><p class="ptitle">Daftar Antrean Real-Time</p>
+      <span class="chip chip-mint">WA Aktif</span></div>
+    <div class="text-sm" style="display:flex;justify-content:space-between"><b>Sedang Proses Pangkas</b><span class="chip">1 Pelanggan</span></div>
+    <div class="card mt-2" style="border-left:5px solid var(--danger)">
+      <div class="text-xs text-muted">NOMOR MEJA 01</div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <b style="font-size:1.8rem;color:var(--danger)">${q.nowServing}</b><span class="chip" style="color:var(--danger);border-color:var(--danger)">Sedang Cukur</span></div>
+      <div class="text-sm">🅡 Rian: Fade Cut</div>
+      <div class="text-sm text-muted">Mulai: 10:15 WIB &nbsp; Estimasi Selesai: 10:35</div>
+      <div class="text-sm">● 4 Orang Menunggu di Belakang <button style="border:0;background:none;color:var(--mint-d);font-weight:700;cursor:pointer" onclick="go('dash')">Lihat Detail</button></div></div>
+    <div class="card"><div style="display:flex;justify-content:space-between"><b>Jam Cukur Populer Hari Ini</b><span class="text-xs text-muted">Puncak: 13.00 - 15.00</span></div>
+      <div style="display:flex;align-items:flex-end;height:4.5rem;gap:.4rem;margin-top:.4rem">
+      ${[['10.00', 30], ['11.00', 45], ['13.00', 70], ['14.00', 60], ['16.00', 48], ['18.00', 35]].map(([l, h]) =>
+        `<div style="flex:1;text-align:center"><div class="bar" style="height:${h}px;background:${l === '13.00' ? 'var(--mint)' : '#CDEFE3'}"></div><small style="font-size:.55rem">${l}</small></div>`).join('')}
+      </div></div>
+    <div class="text-sm" style="display:flex;justify-content:space-between"><b>Antrean Menunggu</b><span class="text-muted">Total: ${q.waiting.length} berikutnya</span></div>
     <div class="qlist-grid">
-    ${q.waiting.map(w => `<div class="card text-sm"><b>${w.code}</b> • ${w.name}<br>
-      <span class="text-muted">${w.service} • Kapster ${w.kapster}</span><br>
-      <button class="chip mt-1" onclick="ticketDetail('${w.code}')">Kelola →</button></div>`).join('') || '<div class="card">Kosong 🎉</div>'}
-    </div>
-    <button class="chip" onclick="renderAll()">🔄 Refresh</button>`;
+    ${q.waiting.map(w => `<div class="card rowitem text-sm"><div class="avatar">${w.code.split('-')[1]}</div>
+      <div><b>${w.code}</b> • ${w.name} ${w.code.includes('09') ? '<span class="chip">Walk-in</span>' : '<span class="chip">App</span>'}<br>
+      <span class="text-muted">${w.service} • ${w.kapster}</span></div>
+      <button class="chip ${w === q.waiting[0] ? 'chip-mint' : ''}" style="margin-left:auto" onclick="openTicket('${w.code}')">${w === q.waiting[0] ? 'Siap Panggil' : 'Menunggu'}</button></div>`).join('')
+      || '<div class="card">Kosong 🎉</div>'}</div>`;
 }
-function ticketDetail(code) {
-  const q = LiveQueue.load();
-  const t = q.waiting.find(x => x.code === code);
-  if (!t) return;
+
+function openTicket(code) {
+  renderTicketDetail(code);
+  VIEWS.forEach(x => document.getElementById('v-' + x).classList.add('hidden'));
+  document.getElementById('v-list').classList.remove('hidden');
+}
+function renderTicketDetail(code) {
+  const q = TICKETS();
+  const t = q.waiting.find(x => x.code === code) || q.waiting[0];
+  if (!t) { renderList(); return; }
   document.getElementById('v-list').innerHTML = `
-    <button class="chip mt-4" onclick="renderList()">← Daftar</button>
-    <div class="card mt-2" style="text-align:center">
-      <div class="text-xs text-muted">NOMOR GILIRAN ${t.code}</div>
-      <div style="font-size:2.5rem;font-weight:900;color:#009E77">${t.code}</div>
-      <div class="text-sm">${t.name}<br>${t.service} • Kapster ${t.kapster}</div>
-      <span class="chip">Pengingat WA Terkirim ✓ (simulasi)</span>
-    </div>
-    <button class="btn-primary" onclick="callNext()">▶ Mulai Cukur</button>
-    <button class="btn-ghost mt-2" onclick="callNext()">✔ Selesai</button>
-    <button class="btn-ghost mt-2" style="color:#E5484D" onclick="callNext()">Batalkan Antrean</button>`;
+    <div class="m-head"><button class="iconbtn" onclick="renderAll();go('list')">✕</button><p class="ptitle">Detail Pelanggan: ${t.code}</p>
+      <button class="iconbtn" onclick="toast('Opsi tiket (simulasi)')">⋮</button></div>
+    <div class="card" style="text-align:center">
+      <span class="chip chip-mint">TIKET ANTREAN AKTIF</span><br><b>Vintage Cut Studio</b><br>
+      <span class="text-sm text-muted">Kapster: Anton FadeMaster • Kursi 02</span>
+      <div class="text-xs text-muted mt-2">NOMOR GILIRAN PELANGGAN</div>
+      <div style="font-size:2.6rem;font-weight:900;color:var(--danger)">${t.code}</div>
+      <div class="text-sm">Nama: ${t.name} (+62 812-8899-7721)<br>Layanan: ${t.service} (Rp 55.000)</div>
+      <div class="card text-sm mt-2" style="background:#F2FBF7">💬 <b>Pengingat WA Terkirim</b> <span class="chip" style="float:right">10:28</span><br><span class="text-muted">Pelanggan telah menerima notifikasi</span></div></div>
+    <div class="card text-sm"><b>Progres Alur Cukur:</b>
+      <div class="step"><span class="dot">✓</span><span><b>1. Panggil Pelanggan</b> — Selesai<br><span class="text-muted">Notifikasi buzzer & WhatsApp dikirim</span></span></div>
+      <div class="step"><span class="dot">2</span><span><b>2. Duduk di Kursi & Cukur</b> <span class="chip">Hampir Giliran</span><br><span class="text-muted">Anton FadeMaster siap memotong</span></span></div>
+      <div class="step"><span class="dot dim">3</span><span class="text-muted"><b>3. Selesai & Pembayaran</b> — Menunggu<br>Kasir QRIS / tunai & beri nota</span></div></div>
+    <div class="grid2"><button class="btn-primary" style="margin-top:0" onclick="callNext()">◷ Mulai Cukur</button>
+      <button class="btn-ghost" style="margin-top:0" onclick="callNext()">✓ Selesai</button></div>
+    <button class="btn-danger-ghost mt-2" onclick="callNext()">Batalkan Antrean</button>`;
 }
+function callNext() { const q = LiveQueue.callNext(); renderAll(); go('list'); toast(`📢 ${q.nowServing} dipanggil — WS broadcast (simulasi)`); }
+
+function renderCariTiket(kw) {
+  kw = (kw || '').toLowerCase();
+  const q = TICKETS();
+  const list = q.waiting.filter(w => (w.code + w.name).toLowerCase().includes(kw));
+  document.getElementById('v-cari').innerHTML = `
+    <div class="m-head"><div class="avatar">🔍</div><div><b>Cari Tiket</b><div class="text-sm text-muted">Loncat ke detail pelanggan</div></div></div>
+    <input id="tq" class="inp" placeholder="🔍 Ketik kode (A-08) / nama…" value="${kw.replace(/"/g, '')}" oninput="renderCariTiket(this.value,true)">
+    ${list.map(w => `<div class="card rowitem text-sm" style="cursor:pointer" onclick="openTicket('${w.code}')">
+      <div class="avatar">${w.code.split('-')[1]}</div><div><b>${w.code}</b> • ${w.name}<br><span class="text-muted">${w.service}</span></div>
+      <span class="chip" style="margin-left:auto">Kelola →</span></div>`).join('') || '<div class="card">Tidak ketemu.</div>'}`;
+  const el = document.getElementById('tq');
+  if (el && arguments[1]) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+}
+
 function renderActions() {
   document.getElementById('v-actions').innerHTML = `
-    <h2 class="text-lg font-extrabold mt-4">Manajemen Aksi Antrean</h2>
-    <div class="card">🟢 <b>Status Sesi: Buka Antrean</b><br><span class="text-sm text-muted">Menerima online & offline</span></div>
-    <div class="card">💬 <b>Kirim Pengingat WA Masal</b><br>
-      <button class="chip mt-1" onclick="toast('WA masal ke 4 antrean terkirim (simulasi)')">Kirim</button></div>
-    <div class="card">🔴 <b>Tutup Antrean / Istirahat</b></div>
-    <b>Editor Layanan Aktif</b>
-    <div class="card text-sm">Low Fade Cut — Rp50.000</div>
-    <div class="card text-sm">French Crop — Rp55.000</div>`;
+    <div class="m-head"><button class="iconbtn" onclick="go('dash')">✕</button><p class="ptitle">Manajemen Aksi Antrean</p>
+      <button class="iconbtn" onclick="toast('Info sesi (simulasi)')">ⓘ</button></div>
+    <div class="card rowitem"><div class="avatar" style="background:#E7F8F1">🔓</div><div><b>Status Sesi: Buka Antrean</b><br><span class="text-sm text-muted">Menerima pelanggan online & offline</span></div><span class="dot" style="margin-left:auto">✓</span></div>
+    <button class="card rowitem" style="width:100%;border:0;cursor:pointer;text-align:left" onclick="go('walkin')"><div class="avatar" style="background:#E7F8F1">👤</div><div><b>Input Walk-in Manual</b><br><span class="text-sm text-muted">Catat pelanggan datang langsung</span></div><span style="margin-left:auto">›</span></button>
+    <div class="card rowitem"><div class="avatar" style="background:#E7F8F1">💬</div><div><b>Kirim Pengingat WA Masal</b><br><span class="text-sm text-muted">Ingatkan 4 orang antrean terdepan</span></div><button class="chip chip-mint" style="margin-left:auto" onclick="toast('WA masal ke 4 antrean terkirim (simulasi)')">Kirim</button></div>
+    <button class="card rowitem" style="width:100%;border:0;cursor:pointer;text-align:left" onclick="toast('Antrean dikunci sementara (simulasi)')"><div class="avatar" style="background:#FFEDED">🔒</div><div><b>Tutup Antrean / Istirahat Toko</b><br><span class="text-sm text-muted">Kunci pendaftaran pelanggan baru</span></div><span style="margin-left:auto">›</span></button>
+    <div class="text-sm" style="display:flex;justify-content:space-between"><b>Editor Layanan Aktif</b><button style="border:0;background:none;color:var(--mint-d);font-weight:700;cursor:pointer" onclick="toast('Tambah layanan (simulasi)')">+ Tambah</button></div>
+    <div class="card"><div class="kv"><span>Low Fade Cut<br><span class="text-muted">Estimasi: 25 Menit</span></span><b class="text-mint">Rp 50.000 ●</b></div>
+      <div class="kv"><span>French Crop<br><span class="text-muted">Estimasi: 30 Menit</span></span><b class="text-mint">Rp 55.000 ●</b></div></div>`;
 }
-function renderReport() {
-  document.getElementById('v-report').innerHTML = `
-    <h2 class="text-lg font-extrabold mt-4">Laporan Performa Harian</h2>
-    <div class="card" style="text-align:center">
-      <div class="text-xs text-muted">RATA-RATA WAKTU MENUNGGU</div>
-      <div style="font-size:2.25rem;font-weight:900;color:#009E77">15 Menit</div>
-      <div class="text-sm">Rating ★ 4.8 • Pendapatan <b>Rp1,2jt</b></div></div>
-    <b>Jam Sibuk (puncak 14.00)</b>
-    <div style="display:flex;align-items:flex-end;height:110px;gap:6px">
-      ${[[40, '10'], [60, '12'], [110, '14'], [70, '16'], [45, '18']].map(([h, l]) =>
-        `<div style="flex:1;text-align:center"><div class="bar" style="height:${h}px;background:${h >= 100 ? '#00C896' : '#CDEFE3'}"></div><small>${l}</small></div>`).join('')}
-    </div>
-    <div class="card text-sm mt-2"><b>Performa Kapster</b><br>Rian (16 tamu) — Rp450rb<br>Anton (14 tamu) — Rp480rb<br>Ben (6 tamu) — Rp120rb</div>`;
+
+function renderWalkin() {
+  document.getElementById('v-walkin').innerHTML = `
+    <div class="m-head"><button class="iconbtn" onclick="go('dash')">‹</button><p class="ptitle">Input Pelanggan Walk-In</p>
+      <span class="chip" style="background:#FFF3D6">Offline Customer</span></div>
+    <label class="lbl">Nama Lengkap Pelanggan</label><input id="w-name" class="inp" value="Budi Santoso">
+    <label class="lbl">Nomor WhatsApp (Untuk Notifikasi)</label><input id="w-phone" class="inp" value="0813-2244-9988">
+    <p class="lbl">Pilih Model / Layanan</p>
+    <div class="grid2" id="w-svc">
+      <div class="card text-sm" data-svc="Low Fade Cut" style="border:2px solid var(--mint);cursor:pointer"><b>Low Fade Cut</b><br>25 Menit<br><b class="text-mint">Rp 50.000</b></div>
+      <div class="card text-sm" data-svc="French Crop" style="cursor:pointer"><b>French Crop</b><br>30 Menit<br><b class="text-mint">Rp 55.000</b></div></div>
+    <label class="lbl">Tugaskan Kapster</label>
+    <div class="card rowitem text-sm"><div class="avatar">R</div><div><b>Rian "The Razor"</b> (Estimasi siap: 12m)</div></div>
+    <div class="card text-sm">☑ Simpan & Kirim Pesan Konfirmasi WA Otomatis</div>
+    <button class="btn-primary" onclick="saveWalkin()">+ Tambah Antrean (A-09)</button>`;
+  document.querySelectorAll('#w-svc .card').forEach(c => c.onclick = () => {
+    document.querySelectorAll('#w-svc .card').forEach(x => x.style.border = '0');
+    c.style.border = '2px solid var(--mint)';
+  });
 }
-function callNext() { const q = LiveQueue.callNext(); renderAll(); toast(`📢 ${q.nowServing} dipanggil (simulasi WS)`); }
-function openWalkin() { document.getElementById('walkinModal').classList.remove('hidden'); document.getElementById('walkinModal').style.display = 'flex'; }
 function saveWalkin() {
   const name = document.getElementById('w-name').value || 'Tamu';
   const code = LiveQueue.addWalkIn(name);
-  document.getElementById('walkinModal').classList.add('hidden');
-  document.getElementById('walkinModal').style.display = 'none';
-  renderAll(); show('v-list'); toast(`${code} ditambah (${name})`);
+  renderAll(); go('list'); toast(`${code} ditambah (${name}) + WA terkirim (simulasi)`);
 }
-document.getElementById('walkinModal').style.display = 'none';
-renderAll();
+
+function renderReport() {
+  document.getElementById('v-report').innerHTML = `
+    <div class="m-head"><button class="iconbtn" onclick="go('dash')">‹</button><p class="ptitle">Laporan Performa Harian</p>
+      <span class="chip chip-mint">Live Sync</span></div>
+    <div class="card" style="text-align:center">
+      <div class="text-xs text-muted">RATA-RATA WAKTU MENUNGGU</div>
+      <div style="font-size:2.2rem;font-weight:900;color:var(--mint-d)">15 Menit</div>
+      <div class="text-sm text-muted">Turun 4 menit lebih cepat dibanding kemarin</div><hr>
+      <div class="grid2 text-sm"><div>Rating Rata-rata<br><b>★ 4.8</b> <span class="text-muted">/ 5.0</span></div>
+      <div>Pendapatan Harian<br><b class="text-mint">Rp 1,2jt</b></div></div></div>
+    <div class="card"><div style="display:flex;justify-content:space-between"><b>Analisis Jam Sibuk (Peak Hours)</b><span class="chip">Sabtu</span></div>
+      <div class="text-xs text-muted">Distribusi volume pelanggan hari ini</div>
+      <div style="display:flex;align-items:flex-end;height:5.5rem;gap:.5rem;margin-top:.4rem">
+      ${[['10-12', 30], ['12-14', 45], ['14-16', 85], ['16-18', 80], ['18-20', 40]].map(([l, h]) =>
+        `<div style="flex:1;text-align:center"><div class="bar" style="height:${h}px;background:${l === '14-16' ? 'var(--mint)' : '#CDEFE3'}"></div><small style="font-size:.55rem">${l}</small></div>`).join('')}
+      </div><div class="text-xs text-muted mt-2">Jam paling ramai terjadi pada pukul 14.00 - 16.00 (18 Pelanggan)</div></div>
+    <div class="card"><b>Performa Kapster Hari Ini</b>
+      <div class="kv"><span>Rian (18 Tamu)</span><b>Rp 650.000</b></div>
+      <div class="kv"><span>Anton (14 Tamu)</span><b>Rp 480.000</b></div>
+      <div class="kv"><span>Ben (6 Tamu)</span><b>Rp 120.000</b></div></div>`;
+}
+
+function renderProfil() {
+  document.getElementById('v-profil').innerHTML = `
+    <div class="m-head"><button class="iconbtn" onclick="go('dash')">‹</button><p class="ptitle">Profil Toko</p>
+      <button class="iconbtn" onclick="go('actions')">⚙️</button></div>
+    <div class="card" style="text-align:center">
+      <div class="avatar lg" style="margin:0 auto">VC</div>
+      <b>Vintage Cut Studio</b> <span class="chip chip-mint">MITRA PREMIUM</span><br>
+      <span class="text-sm text-muted">📍 Jl. Kemang Raya No. 12, JakSel • 08:00-22:00</span></div>
+    <div class="grid2" style="grid-template-columns:repeat(3,1fr)">
+      <div class="card text-sm" style="text-align:center">Tamu Hari Ini<br><b class="text-mint">38 Tamu</b></div>
+      <div class="card text-sm" style="text-align:center">Rating Toko<br><b class="text-mint">★ 4.8</b></div>
+      <div class="card text-sm" style="text-align:center">Omzet Hari Ini<br><b class="text-mint">Rp 1,2jt</b></div></div>
+    <div class="card">
+      <button class="menu-row" onclick="go('actions')">🏪 Data Toko & Jam Operasional <span style="margin-left:auto">›</span></button>
+      <button class="menu-row" onclick="toast('3 kapster • shift pagi/sore (simulasi)')">💈 Data Kapster & Shift <span style="margin-left:auto">›</span></button>
+      <button class="menu-row" onclick="toast('Langganan Pro s/d 30 Nov (simulasi)')">💳 Langganan SaaS <span class="chip chip-mint" style="margin-left:auto">Pro Aktif</span></button>
+      <button class="menu-row" onclick="toast('Notifikasi WA dimatikan (simulasi)')">💬 Notifikasi WhatsApp <span class="chip chip-mint" style="margin-left:auto">Aktif</span></button>
+      <button class="menu-row" style="color:var(--danger)" onclick="FakeDB.logout();location.href='index.html'">🚪 Keluar Akun</button>
+    </div>`;
+}
+renderAll(); go('dash');
 </script>
 </body>
 </html>

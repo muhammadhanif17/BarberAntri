@@ -1,68 +1,99 @@
-/* Token mockup B2C/B2B: Pristine Mint + Pearlescent White */
-:root { --mint: #00C896; --mint-d: #009E77; --bg: #F6FBF8; --ink: #10231C; --muted: #6B7F78; }
-body.app-bg { background: var(--bg); color: var(--ink); font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 0; }
+/* BarberAntri — mobile-first pixel-match mockup. Mint + white. */
+:root {
+  --mint: #00C896; --mint-d: #009E77; --mint-dd: #007A5E;
+  --bg: #E9F6F0; --card: #FFFFFF; --ink: #10231C; --muted: #6B7F78;
+  --line: #DCE8E2; --danger: #E5484D; --amber: #FFB020;
+  --grad: linear-gradient(135deg, #00D09A, #00A173);
+}
+* { box-sizing: border-box; }
+body.app-bg { background: var(--bg); color: var(--ink); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; margin: 0; }
 .text-mint { color: var(--mint-d); } .text-muted { color: var(--muted); }
-.phone { max-width: 28rem; margin: 0 auto; padding: 1rem; padding-bottom: 5rem; }
-.card { background: #fff; border-radius: 1.25rem; padding: 1rem; box-shadow: 0 1px 6px rgba(16,35,28,.06); margin-bottom: .75rem; }
+.phone { max-width: 28rem; margin: 0 auto; padding: .9rem .9rem 6rem; min-height: 100vh; }
+
+/* header */
+.m-head { display: flex; align-items: center; gap: .6rem; margin: .4rem 0 .8rem; }
+.avatar { width: 2.6rem; height: 2.6rem; border-radius: 999px; background: #fff; border: 2px solid var(--mint); display: flex; align-items: center; justify-content: center; font-weight: 900; color: var(--mint-d); flex: none; }
+.avatar.lg { width: 4.2rem; height: 4.2rem; font-size: 1.3rem; }
+.bell { margin-left: auto; width: 2.4rem; height: 2.4rem; border-radius: 999px; background: #fff; border: 0; position: relative; cursor: pointer; }
+.bell::after { content: ""; position: absolute; top: .5rem; right: .6rem; width: .5rem; height: .5rem; border-radius: 999px; background: var(--danger); }
+.iconbtn { width: 2.2rem; height: 2.2rem; border-radius: 999px; background: #fff; border: 0; cursor: pointer; font-size: 1rem; }
+.ptitle { font-weight: 800; margin: 0 auto; }
+
+/* cards & buttons */
+.card { background: var(--card); border-radius: 1.25rem; padding: 1rem; box-shadow: 0 1px 6px rgba(16,35,28,.07); margin-bottom: .75rem; }
 .card-dark { background: var(--ink); color: #fff; border-radius: 1.25rem; padding: 1.25rem; margin-bottom: .75rem; }
-.btn-primary { width: 100%; background: var(--mint); color: #fff; font-weight: 800; border-radius: 1rem; padding: .9rem; margin-top: 1rem; border: 0; cursor: pointer; }
+.card-green { background: var(--grad); color: #fff; border-radius: 1.25rem; padding: 1.1rem; margin-bottom: .75rem; }
+.btn-primary { width: 100%; background: var(--grad); color: #fff; font-weight: 800; border-radius: 1rem; padding: .9rem; margin-top: 1rem; border: 0; cursor: pointer; font-size: .95rem; }
 .btn-ghost { width: 100%; background: #E7F8F1; color: var(--mint-d); font-weight: 700; border-radius: 1rem; padding: .8rem; border: 0; cursor: pointer; }
-.inp { width: 100%; border: 1px solid #DCE8E2; border-radius: .8rem; padding: .7rem .9rem; box-sizing: border-box; }
+.btn-danger-ghost { width: 100%; background: #fff; color: var(--danger); font-weight: 700; border-radius: 1rem; padding: .8rem; border: 0; cursor: pointer; }
+.inp { width: 100%; border: 1px solid var(--line); border-radius: .8rem; padding: .7rem .9rem; background: #fff; }
 .lbl { font-size: .8rem; font-weight: 700; display: block; margin: .8rem 0 .3rem; }
 .seg { display: flex; background: #E7F8F1; border-radius: .9rem; padding: .25rem; margin: .9rem 0; }
-.seg button { flex: 1; border: 0; background: transparent; padding: .6rem; border-radius: .7rem; font-size: .8rem; font-weight: 700; cursor: pointer; }
-.seg button.on { background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
-.chip { border: 1px solid #DCE8E2; background: #fff; border-radius: 999px; padding: .4rem 1rem; font-size: .8rem; cursor: pointer; }
-.chip-mint { color: var(--mint-d); border-color: var(--mint); }
+.seg button { flex: 1; border: 0; background: transparent; padding: .6rem; border-radius: .7rem; font-size: .8rem; font-weight: 700; cursor: pointer; color: var(--muted); }
+.seg button.on { background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.12); color: var(--ink); }
+.chip { display: inline-block; border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: .3rem .8rem; font-size: .75rem; cursor: pointer; }
+.chip-mint { color: var(--mint-d); border-color: var(--mint); background: #E7F8F1; font-weight: 700; }
 .demo-box { margin-top: 1rem; font-size: .8rem; background: #fff; border: 1px dashed var(--mint); border-radius: 1rem; padding: .8rem; }
+
+/* tiket */
+.ticket-no { font-size: 2.8rem; font-weight: 900; color: var(--mint-d); line-height: 1.1; }
+.ticket-qr { display: block; margin: 12px auto; }
+.step { display: flex; gap: .6rem; align-items: flex-start; font-size: .85rem; padding: .3rem 0; }
+.dot { width: 1.3rem; height: 1.3rem; border-radius: 999px; background: var(--mint); color: #fff; font-size: .7rem; font-weight: 800; display: flex; align-items: center; justify-content: center; flex: none; }
+.dot.dim { background: #C9D8D2; }
+
+/* daftar */
+.rowitem { display: flex; gap: .7rem; align-items: center; }
+.thumb { width: 3.2rem; height: 3.2rem; border-radius: .9rem; background: linear-gradient(135deg, #7BE3BD, #00A173); flex: none; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; }
 .badge-live { background: #E7F8F1; border-radius: 1rem; padding: .9rem; display: flex; justify-content: space-around; text-align: center; }
 .badge-live b { display: block; font-size: 1.05rem; }
-.bottomnav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 28rem; background: #fff; border-top: 1px solid #E5EFEA; display: flex; justify-content: space-around; padding: .6rem .3rem calc(.6rem + env(safe-area-inset-bottom)); }
-.bottomnav button { border: 0; background: none; font-size: .7rem; color: var(--muted); cursor: pointer; }
+.shophead { background: linear-gradient(135deg, #5FE3B0, #00A173); color: #fff; border-radius: 1.25rem; padding: 1.4rem 1.1rem .9rem; margin-bottom: .75rem; }
+.kv { display: flex; justify-content: space-between; font-size: .85rem; padding: .35rem 0; }
+.menu-row { display: flex; align-items: center; gap: .6rem; width: 100%; background: none; border: 0; text-align: left; padding: .7rem 0; font-size: .9rem; cursor: pointer; color: var(--ink); }
+.menu-row + .menu-row { border-top: 1px solid #EFF5F1; }
+.qicons { display: grid; grid-template-columns: repeat(4, 1fr); gap: .6rem; margin: .8rem 0; }
+.qicons button { background: #fff; border: 0; border-radius: 1rem; padding: .7rem .2rem; font-size: .7rem; color: var(--ink); cursor: pointer; box-shadow: 0 1px 6px rgba(16,35,28,.07); }
+.qicons span { font-size: 1.2rem; }
+
+/* footer 5 menu */
+.bottomnav { position: fixed; bottom: .7rem; left: 50%; transform: translateX(-50%); width: calc(100% - 1.4rem); max-width: 26.6rem; background: #fff; border-radius: 1.6rem; display: flex; justify-content: space-around; align-items: center; padding: .55rem .3rem; box-shadow: 0 6px 24px rgba(16,35,28,.14); z-index: 30; }
+.bottomnav button { border: 0; background: none; font-size: .62rem; color: var(--muted); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 3rem; }
 .bottomnav button.on { color: var(--mint-d); font-weight: 800; }
+.bottomnav button .ic { font-size: 1.15rem; }
+.fab { width: 3.2rem; height: 3.2rem; border-radius: 999px; background: var(--grad); color: #fff; font-size: 1.4rem; margin-top: -1.6rem; box-shadow: 0 6px 16px rgba(0,160,115,.45); }
+
+/* modal */
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 1rem; }
+.sheet { background: #fff; border-radius: 1.25rem; padding: 1.2rem; width: 100%; max-width: 26rem; text-align: center; }
+.hidden { display: none !important; }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
-.bar { border-radius: .4rem; }
-input, button { font-family: inherit; }
 
-/* E-tiket QR selalu tengah (Tailwind preflight membuat img display:block,
-   sehingga text-align:center induk tidak mempan — margin auto solusinya). */
-.ticket-qr { display: block; margin: 12px auto; }
-
-/* Navigasi desktop + branding login: sembunyi di HP */
+/* navigasi desktop + branding: sembunyi di HP */
 .topnav, .sidebar, .login-brand { display: none; }
 
 @media (min-width: 900px) {
   .phone { max-width: 72rem; }
-
-  /* ---- LOGIN SPLIT (index.html) ---- */
+  .bottomnav { display: none; }
+  .topnav { display: flex; gap: .4rem; align-items: center; background: #fff; border-radius: 1.25rem; padding: .7rem 1rem; margin-bottom: .75rem; box-shadow: 0 1px 6px rgba(16,35,28,.06); position: sticky; top: .75rem; z-index: 20; }
+  .topnav b { margin-right: auto; }
+  .topnav button { border: 0; background: none; font-weight: 700; color: var(--muted); cursor: pointer; padding: .5rem .9rem; border-radius: .7rem; }
+  .topnav button:hover { background: #E7F8F1; color: var(--mint-d); }
   .login-split { display: grid; grid-template-columns: 1.1fr 1fr; gap: 2rem; max-width: 64rem; margin: 4rem auto; align-items: stretch; }
-  .login-split .phone { max-width: none; margin: 0; background: #fff; border-radius: 1.5rem; box-shadow: 0 8px 30px rgba(16,35,28,.08); }
+  .login-split .phone { max-width: none; margin: 0; background: #fff; border-radius: 1.5rem; box-shadow: 0 8px 30px rgba(16,35,28,.08); min-height: auto; padding-bottom: 1.5rem; }
   .login-brand { display: flex; flex-direction: column; justify-content: center; gap: 1rem; background: var(--ink); color: #fff; border-radius: 1.5rem; padding: 2.5rem; }
   .login-brand h2 { font-size: 2rem; font-weight: 900; margin: 0; }
   .login-brand h2 span { color: var(--mint); }
-  .login-brand ul { list-style: none; padding: 0; margin: 0; display: grid; gap: .6rem; font-size: .95rem; color: #D7E8E0; }
-
-  /* ---- PELANGGAN DESKTOP (pelanggan.html) ---- */
-  .bottomnav { display: none; }
-  .topnav { display: flex; gap: .4rem; align-items: center; background: #fff; border-radius: 1.25rem; padding: .7rem 1rem; margin-top: 1rem; box-shadow: 0 1px 6px rgba(16,35,28,.06); position: sticky; top: .75rem; z-index: 20; }
-  .topnav b { margin-right: auto; }
-  .topnav button { border: 0; background: none; font-weight: 700; color: var(--muted); cursor: pointer; padding: .5rem .9rem; border-radius: .7rem; }
-  .topnav button.on, .topnav button:hover { background: #E7F8F1; color: var(--mint-d); }
+  .login-brand ul { list-style: none; padding: 0; margin: 0; display: grid; gap: .6rem; color: #D7E8E0; }
   .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
   .home-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: .75rem; align-items: start; }
   .detail-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: .75rem; align-items: start; }
   .ticket-wrap { max-width: 34rem; margin: 0 auto; }
   .ticket-qr { width: 180px; height: 180px; }
-
-  /* ---- MITRA DESKTOP (mitra.html): sidebar + area kerja ---- */
   .partner-desk { display: grid; grid-template-columns: 230px 1fr; gap: 1.25rem; align-items: start; }
   .sidebar { display: flex; flex-direction: column; gap: .35rem; background: #fff; border-radius: 1.25rem; padding: 1rem; position: sticky; top: .75rem; box-shadow: 0 1px 6px rgba(16,35,28,.06); }
   .sidebar b { padding: .25rem .5rem; }
   .sidebar button { text-align: left; border: 0; background: none; padding: .65rem .8rem; border-radius: .8rem; font-weight: 700; color: var(--muted); cursor: pointer; }
-  .sidebar button.on, .sidebar button:hover { background: #E7F8F1; color: var(--mint-d); }
-  .sidebar .btn-primary { margin-top: .5rem; }
+  .sidebar button:hover { background: #E7F8F1; color: var(--mint-d); }
   .dash-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: .75rem; align-items: start; }
   .qlist-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
-  #walkinModal { align-items: center !important; }
-  #walkinModal .card { border-radius: 1.25rem !important; max-width: 28rem; }
 }

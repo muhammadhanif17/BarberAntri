@@ -10,96 +10,198 @@
 <body class="app-bg">
 <div class="phone">
   <nav class="topnav"><b>💈 BarberAntri</b>
-    <button onclick="show('view-home')">Home</button>
-    <button onclick="toast('Maps radius — versi live menyusul')">Maps</button>
-    <button onclick="show('view-ticket')">Tiket</button>
-    <button onclick="FakeDB.logout();location.href='index.html'">Keluar</button>
+    <button onclick="go('home')">Home</button>
+    <button onclick="go('peta')">Peta</button>
+    <button onclick="go('cari')">Cari</button>
+    <button onclick="go('tiket')">Tiket</button>
+    <button onclick="go('profil')">Profil</button>
   </nav>
-  <div id="view-home"></div>
-  <div id="view-detail" class="hidden"></div>
-  <div id="view-ticket" class="hidden"></div>
-  <nav class="bottomnav">
-    <button class="on">🏠<br>Home</button>
-    <button onclick="toast('Maps radius — versi live menyusul')">🗺️<br>Maps</button>
-    <button onclick="show('view-ticket')">🎟️<br>Tiket</button>
-    <button onclick="FakeDB.logout();location.href='index.html'">👤<br>Keluar</button>
+  <div id="v-home"></div>
+  <div id="v-peta" class="hidden"></div>
+  <div id="v-cari" class="hidden"></div>
+  <div id="v-detail" class="hidden"></div>
+  <div id="v-tiket" class="hidden"></div>
+  <div id="v-profil" class="hidden"></div>
+  <nav class="bottomnav" id="bnav">
+    <button data-v="v-home" class="on"><span class="ic">🏠</span>Home</button>
+    <button data-v="v-peta"><span class="ic">🗺️</span>Peta</button>
+    <button data-v="v-cari" class="fab">🔍</button>
+    <button data-v="v-tiket"><span class="ic">🎟️</span>Tiket</button>
+    <button data-v="v-profil"><span class="ic">👤</span>Profil</button>
   </nav>
+</div>
+<div id="qrModal" class="overlay hidden">
+  <div class="sheet">
+    <b>QR Antrean <span id="qrCode"></span></b>
+    <img id="qrImg" class="ticket-qr" width="200" height="200" alt="QR">
+    <div class="text-sm text-muted">Tunjukkan ke kasir untuk check-in</div>
+    <button class="btn-primary" onclick="document.getElementById('qrModal').classList.add('hidden')">Tutup</button>
+  </div>
 </div>
 <script src="fake_db.js"></script>
 <script src="app.js"></script>
 <script>
 const s = FakeDB.require('pelanggan');
 const shops = [
-  { id: 'vintage', name: 'Vintage Cut Studio', rating: 4.8, dist: '0,8 km' },
-  { id: 'gentleman', name: 'Gentleman Prime', rating: 4.9, dist: '1,2 km' },
+  { id: 'vintage', name: 'Vintage Cut Studio', area: 'JakSel • 300m', price: 'Rp 50rb', rating: '4.9', serving: 'A-06', wait: 4, eta: 15, open: 'Buka • 10:00 - 22:00 WIB' },
+  { id: 'gentleman', name: 'Gentlemen Prime', area: 'Senopati • 1,2km', price: 'Rp 50rb', rating: '4.8', serving: 'B-11', wait: 2, eta: 10, open: 'Buka • 09:00 - 21:00 WIB' },
 ];
-function show(id) {
-  ['view-home', 'view-detail', 'view-ticket'].forEach(v => document.getElementById(v).classList.add('hidden'));
-  document.getElementById(id).classList.remove('hidden');
+const VIEWS = ['v-home', 'v-peta', 'v-cari', 'v-detail', 'v-tiket', 'v-profil'];
+function go(v) {
+  renderAll();
+  VIEWS.forEach(x => document.getElementById('v-' + x.slice(2)).classList.add('hidden'));
+  document.getElementById('v-' + v).classList.remove('hidden');
+  document.querySelectorAll('#bnav button[data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === 'v-' + v));
   window.scrollTo(0, 0);
+  if (v === 'cari') setTimeout(() => document.getElementById('q')?.focus(), 50);
 }
+document.querySelectorAll('#bnav button[data-v]').forEach(b => b.onclick = () => go(b.dataset.v.slice(2)));
+function renderAll() { renderHome(); renderPeta(); renderCari(''); renderTiket(); renderProfil(); }
+
 function renderHome() {
-  const q = LiveQueue.load();
-  document.getElementById('view-home').innerHTML = `
-    <h2 class="text-lg font-extrabold mt-4">Halo, ${s.name} 👋</h2>
-    <div class="card-dark">
-      <div class="text-xs opacity-70">ANTREAN AKTIF ${q.myTicket.code}</div>
-      <div class="text-2xl font-black">${q.myTicket.code} • ${q.myTicket.shop}</div>
-      <div class="text-sm opacity-70">Posisi ${q.myTicket.position} orang lagi • ETA ~${q.myTicket.etaMin} mnt</div>
-      <button class="btn-ghost mt-3" onclick="renderTicket();show('view-ticket')">Lihat E-Tiket →</button>
-    </div>
-    <div class="home-grid">
-    <div class="card"><b>POTONG TANPA ANTRI ✂️</b><br><span class="text-sm text-muted">Ambil nomor dari mana saja.</span></div>
-    <div><b>Rekomendasi Barbershop</b>
-    <div class="shop-grid">
-      ${shops.map(t => `<div class="card" onclick="renderDetail('${t.id}')" style="cursor:pointer">
-        <b>${t.name}</b><br><span class="text-sm text-muted">★ ${t.rating} • ${t.dist} • Live ${q.nowServing}</span></div>`).join('')}
-    </div></div>
-    </div>`;
+  const q = LiveQueue.load(); const t = q.myTicket;
+  document.getElementById('v-home').innerHTML = `
+    <div class="m-head"><div class="avatar">GB</div>
+      <div><div class="text-sm text-muted">Selamat datang,</div><b>Halo, ${s.name}</b></div>
+      <button class="bell" onclick="toast('2 notifikasi: A-07 tinggal 4 lagi (simulasi)')">🔔</button></div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between"><b>ANTREAN AKTIF</b><span class="text-sm text-muted">Vintage Cut</span></div>
+      <div class="text-sm text-muted">Nomor Antrean Anda &nbsp;&nbsp; Posisi: ${t.position} di depan Anda</div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="ticket-no">${t.code}</div>
+        <div class="text-sm">Estimasi: <b>~${t.etaMin} Menit</b></div></div>
+      <button class="btn-primary" onclick="go('tiket')">Pantau Sekarang →</button></div>
+    <div class="qicons">
+      <button onclick="go('peta')"> <span>📍</span><br>Maps</button>
+      <button onclick="toast('2 barbershop favorit (simulasi)')"> <span>🤍</span><br>Favorit</button>
+      <button onclick="toast('14x pangkas • terakhir French Crop (simulasi)')"> <span>🕘</span><br>Riwayat</button>
+      <button onclick="go('profil')"> <span>⚙️</span><br>Setelan</button></div>
+    <div class="card-green"><b>BARBERPASS VIP</b><br><b>POTONG TANPA ANTRI SEBULAN</b><br>
+      <button class="chip mt-2" onclick="toast('Gabung BarberPass Gold — Rp99rb/bln (simulasi)')">GABUNG SEKARANG</button></div>
+    <div class="home-grid"><div></div><div>
+      <div style="display:flex;justify-content:space-between"><b>Rekomendasi Barbershop</b>
+        <button style="border:0;background:none;color:var(--mint-d);font-weight:700;cursor:pointer" onclick="go('cari')">Lihat Semua</button></div>
+      <div class="shop-grid">
+      ${shops.map(p => `<div class="card" style="cursor:pointer" onclick="renderDetail('${p.id}')">
+        <div class="thumb">✂️<span class="chip" style="position:absolute;margin:-.4rem 0 0 2.2rem">${p.rating} ★</span></div>
+        <b>${p.name}</b><br><span class="text-sm text-muted">${p.area}</span><br>
+        <span class="text-sm">${p.price}</span>
+        <button class="chip chip-mint" style="float:right" onclick="event.stopPropagation();renderDetail('${p.id}')">Ambil</button>
+      </div>`).join('')}</div>
+    </div></div>`;
 }
+
+function renderPeta() {
+  document.getElementById('v-peta').innerHTML = `
+    <div class="m-head"><div class="avatar">📍</div><div><b>Peta Barbershop</b><div class="text-sm text-muted">Radius 2 km darimu</div></div></div>
+    <div class="card" style="height:12rem;background:linear-gradient(135deg,#D8F3E6 0%,#C2EAD6 40%,#BFE3D2 60%,#D8F3E6 100%);position:relative;overflow:hidden">
+      <div style="position:absolute;top:2.5rem;left:3rem">📍<b class="text-sm">Vintage (300m)</b></div>
+      <div style="position:absolute;top:6rem;right:2.5rem">📍<b class="text-sm">Gentlemen (1,2km)</b></div>
+      <div style="position:absolute;bottom:1rem;left:1rem">🔵 <span class="text-sm">Kamu</span></div>
+      <span class="chip" style="position:absolute;bottom:.8rem;right:.8rem">Maps live — versi produksi</span>
+    </div>
+    ${shops.map(p => `<div class="card rowitem" style="cursor:pointer" onclick="renderDetail('${p.id}')">
+      <div class="thumb">✂️</div><div><b>${p.name}</b><br><span class="text-sm text-muted">★ ${p.rating} • ${p.area}</span></div>
+      <span class="chip chip-mint" style="margin-left:auto">Live ${p.serving}</span></div>`).join('')}`;
+}
+
+function renderCari(kw, keepFocus) {
+  kw = (kw || '').toLowerCase();
+  const list = shops.filter(p => p.name.toLowerCase().includes(kw));
+  document.getElementById('v-cari').innerHTML = `
+    <div class="m-head"><div class="avatar">🔍</div><div><b>Cari Barber</b><div class="text-sm text-muted">${shops.length} barbershop di sekitarmu</div></div></div>
+    <input id="q" class="inp" placeholder="🔍 Cari nama, area, layanan…" value="${kw.replace(/"/g, '')}" oninput="renderCari(this.value,true)">
+    <div style="display:flex;gap:.4rem;margin:.6rem 0">
+      ${['Semua', 'Terdekat', 'Rating 4.8+', 'Di bawah 60rb'].map(f => `<button class="chip" onclick="toast('Filter ${f} (simulasi)')">${f}</button>`).join('')}
+    </div>
+    ${list.map(p => `<div class="card rowitem" style="cursor:pointer" onclick="renderDetail('${p.id}')">
+      <div class="thumb">✂️</div><div><b>${p.name}</b><br><span class="text-sm text-muted">${p.area} • ${p.price}</span></div>
+      <button class="chip chip-mint" style="margin-left:auto" onclick="event.stopPropagation();renderDetail('${p.id}')">Ambil</button></div>`).join('')
+      || '<div class="card">Tidak ketemu — coba kata lain.</div>'}`;
+  const q = document.getElementById('q');
+  if (q && keepFocus) { q.focus(); q.setSelectionRange(q.value.length, q.value.length); }
+}
+
 function renderDetail(id) {
   const q = LiveQueue.load();
-  const shop = shops.find(x => x.id === id) || shops[0];
-  const waiting = q.waiting.length, eta = waiting * 5;
-  document.getElementById('view-detail').innerHTML = `
-    <button class="chip mt-4" onclick="show('view-home')">← Kembali</button>
-    <h2 class="text-lg font-extrabold mt-2">${shop.name}</h2>
-    <div class="detail-grid">
-    <div class="badge-live mt-2">
-      <div><span class="text-xs text-muted">SEDANG</span><b class="text-mint">${q.nowServing}</b></div>
-      <div><span class="text-xs text-muted">ANTRI</span><b>${waiting} Orang</b></div>
-      <div><span class="text-xs text-muted">ESTIMASI</span><b>~${eta} mnt</b></div>
-    </div>
-    <div class="card mt-3"><b>Katalog Gaya & Kapster</b>
-      <div class="text-sm">💈 Rian "The Razor" — Low Fade Cut <span class="chip">Tersedia</span></div>
-      <div class="text-sm mt-1">💈 Anton FadeMaster — French Crop <span class="chip">Tersedia</span></div>
-    </div>
-    </div>
-    <button class="btn-primary" onclick="takeQueue()">Ambil Nomor Antrean</button>`;
-  show('view-detail');
+  const p = shops.find(x => x.id === id) || shops[0];
+  document.getElementById('v-detail').innerHTML = `
+    <div class="m-head"><button class="iconbtn" onclick="go('home')">‹</button><p class="ptitle">Detail Barbershop</p>
+      <button class="iconbtn" onclick="toast('Link dibagikan (simulasi)')">↗</button></div>
+    <div class="shophead"><b style="font-size:1.2rem">${p.name}</b><br><span class="text-sm">${p.open}</span><br>
+      <span class="chip chip-mint mt-2">Buka Sekarang</span></div>
+    <div class="detail-grid"><div class="card">
+      <div style="display:flex;justify-content:space-between"><b>LIVE ANTREAN SAAT INI</b><span class="chip chip-mint">○ WA Aktif</span></div>
+      <div class="badge-live mt-2">
+        <div><span class="text-xs text-muted">Sedang Dicukur</span><b class="text-mint">${p.serving}</b></div>
+        <div><span class="text-xs text-muted">Orang Menunggu</span><b>${p.wait} Orang</b></div>
+        <div><span class="text-xs text-muted">Waktu Tunggu</span><b>~${p.eta} mnt</b></div></div></div>
+    <div class="card"><b>Katalog Gaya Rambut Populer</b>
+      <div class="grid2 mt-2" style="grid-template-columns:repeat(3,1fr)">
+        ${[['Low Fade Cut', 'Rp 50.000'], ['French Crop', 'Rp 55.000'], ['Pompadour', 'Rp 60.000']].map(([n, h]) =>
+          `<div style="text-align:center"><div class="thumb" style="width:100%;height:3.6rem">💈</div><div class="text-sm"><b>${n}</b><br>${h}</div></div>`).join('')}
+      </div>
+      <p class="text-sm text-muted mt-2">Kapster Bertugas Hari Ini</p>
+      <div class="rowitem"><div class="avatar">RN</div><div><b>Rian "The Razor"</b><br><span class="text-sm text-muted">Master Barber • 6 thn exp</span></div>
+        <span class="chip chip-mint" style="margin-left:auto">Tersedia</span></div></div></div>
+    <button class="btn-primary" onclick="takeQueue()">+ Ambil Nomor Antrean</button>`;
+  go('detail');
 }
-function takeQueue() { renderTicket(); show('view-ticket'); toast('Nomor A-07 diambil (simulasi)'); }
-function renderTicket() {
-  const q = LiveQueue.load(); const t = q.myTicket;
-  const qr = 'https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=' + encodeURIComponent(t.code + '-' + s.phone);
-  document.getElementById('view-ticket').innerHTML = `
-    <button class="chip mt-4" onclick="show('view-home')">← Home</button>
-    <div class="ticket-wrap">
-    <div class="card mt-3" style="text-align:center">
-      <div class="text-xs text-muted">E-TIKET ANTREAN</div>
-      <div class="text-sm">${t.shop}</div>
-      <div style="font-size:3rem;font-weight:900;color:#009E77">${t.code}</div>
-      <span class="chip">Posisi: ${t.position} orang lagi • ETA ~${t.etaMin} mnt</span><br><br>
-      <img class="ticket-qr" src="${qr}" width="140" height="140" alt="QR ${t.code}">
-      <div class="text-xs text-muted mt-1">Tunjukkan QR ini ke kasir</div>
+function takeQueue() { renderTiket(); go('tiket'); toast('Nomor A-07 diambil (simulasi)'); }
+
+function renderTiket() {
+  const t = LiveQueue.load().myTicket;
+  const qr = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(t.code + '-' + s.phone);
+  document.getElementById('qrCode').textContent = t.code;
+  document.getElementById('qrImg').src = qr;
+  document.getElementById('v-tiket').innerHTML = `
+    <div class="m-head"><button class="iconbtn" onclick="go('home')">✕</button><p class="ptitle">E-Tiket Antrean</p><span style="width:2.2rem"></span></div>
+    <div class="ticket-wrap"><div class="card" style="text-align:center">
+      <div class="text-xs text-muted">TIKET ANTREAN AKTIF</div>
+      <b>Barbershop Vintage Cut</b><br><span class="text-sm text-muted">Kapster: Mas Rian • Kursi 02</span>
+      <div class="text-xs text-muted mt-2">NOMOR GILIRAN ANDA</div>
+      <div class="ticket-no">${t.code}</div>
+      <span class="chip">Posisi: ${t.position} Orang Lagi</span>
+      <div class="text-sm mt-2" style="text-align:left"><b>STATUS BERJALAN</b></div>
+      <div class="step"><span class="dot">✓</span><span><b>1. Menunggu di Ruang Tunggu</b><br><span class="text-muted">Datang 09:30 • Tiket diterbitkan</span></span></div>
+      <div class="step"><span class="dot">◷</span><span><b>2. Bersiap (Hampir Giliran)</b><br><span class="text-muted">Estimasi dalam ${t.etaMin} menit</span></span></div>
+      <div class="step"><span class="dot dim">3</span><span class="text-muted"><b>3. Duduk di Kursi Kapster</b><br>Proses pencukuran dimulai</span></div>
+      <div class="card text-sm mt-2" style="background:#F2FBF7">🔔 <b>Notifikasi WA:</b> dikirim otomatis saat sisa 2 orang lagi.</div>
+      <img class="ticket-qr hidden" id="qrInline" src="${qr}" width="140" height="140" alt="QR ${t.code}">
     </div>
-    <div class="card text-sm">1. Menunggu di ruang tunggu<br>2. Datang saat H-2 dipanggil<br>3. Duduk di kursi kapster</div>
-    <button class="btn-ghost" onclick="toast('Pengingat WhatsApp AKTIF (simulasi)')">🔔 Pengingat WhatsApp: ON</button>
-    <button class="btn-ghost mt-2" style="color:#E5484D" onclick="toast('Antrean dibatalkan (simulasi)');LiveQueue.reset();renderHome();renderTicket();">Batalkan Antrean</button>
-    <button class="chip mt-2" onclick="renderTicket()">🔄 Refresh posisi live</button>
+    <button class="btn-primary" onclick="document.getElementById('qrModal').classList.remove('hidden')">🎟️ Tunjukkan QR Kasir</button>
+    <button class="btn-danger-ghost" onclick="LiveQueue.reset();renderAll();go('home');toast('Antrean dibatalkan (simulasi)')">Batalkan Antrean</button>
+    <button class="chip mt-2" onclick="renderAll()">🔄 Refresh posisi live</button></div>`;
+}
+
+function renderProfil() {
+  document.getElementById('v-profil').innerHTML = `
+    <div class="m-head"><button class="iconbtn" onclick="go('home')">‹</button><p class="ptitle">Profil Saya</p>
+      <button class="iconbtn" onclick="toast('Pengaturan (simulasi)')">⚙️</button></div>
+    <div class="card" style="text-align:center">
+      <div class="avatar lg" style="margin:0 auto">GB</div>
+      <b>Gabriel Kevin</b> <span class="chip chip-mint">VIP MEMBER</span><br>
+      <span class="text-sm text-muted">📍 +62 812-8899-7721 • gabriel.kevin@email.com</span></div>
+    <div class="card" style="background:linear-gradient(135deg,#FFC65C,#FF9E3D);color:#5b3400">
+      <b>⭐ BarberPass Gold</b> <span class="chip" style="float:right">Aktif s/d Des 2025</span><br>
+      <span class="text-sm">POIN REWARD TERKUMPUL</span><br><b style="font-size:1.4rem">1.450 Poin</b>
+      <button class="chip" style="float:right" onclick="toast('Diskon 20% diklaim (simulasi)')">Tukar Diskon</button></div>
+    <div class="grid2" style="grid-template-columns:repeat(3,1fr)">
+      <div class="card text-sm" style="text-align:center">Total Kunjungan<br><b class="text-mint">14x Pangkas</b></div>
+      <div class="card text-sm" style="text-align:center">Hemat Kupon<br><b class="text-mint">Rp 240rb Hemat</b></div>
+      <div class="card text-sm" style="text-align:center">Toko Disimpan<br><b class="text-mint">2 Favorit</b></div></div>
+    <div class="card"><span class="text-xs text-muted">BARBERSHOP LANGGANAN</span>
+      <div class="rowitem"><div class="thumb">✂️</div><div><b>Vintage Cut Studio</b><br><span class="text-sm text-muted">Kapster Favorit: Mas Rian</span></div>
+      <span class="chip chip-mint" style="margin-left:auto">Utama</span></div></div>
+    <div class="card">
+      <button class="menu-row" onclick="toast('14 riwayat + struk (simulasi)')">🧾 Riwayat Antrean & Struk <span style="margin-left:auto">›</span></button>
+      <button class="menu-row" onclick="toast('Model tersimpan: French Crop (simulasi)')">✂️ Model Rambut Tersimpan <span class="chip" style="margin-left:auto">French Crop</span></button>
+      <button class="menu-row" onclick="toast('Notifikasi WA dimatikan (simulasi)')">💬 Notifikasi WhatsApp <span class="chip chip-mint" style="margin-left:auto">Aktif</span></button>
+      <button class="menu-row" onclick="toast('GoPay • OVO • QRIS terhubung (simulasi)')">💳 Metode Pembayaran & E-Wallet <span style="margin-left:auto">›</span></button>
+      <button class="menu-row" style="color:var(--danger)" onclick="FakeDB.logout();location.href='index.html'">🚪 Keluar Akun</button>
     </div>`;
 }
-renderHome(); renderTicket();
+renderAll(); go('home');
 </script>
 </body>
 </html>
