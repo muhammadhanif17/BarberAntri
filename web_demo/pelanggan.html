@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BarberAntri — Pelanggan</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="app-bg">
+<div class="phone">
+  <div id="view-home"></div>
+  <div id="view-detail" class="hidden"></div>
+  <div id="view-ticket" class="hidden"></div>
+  <nav class="bottomnav">
+    <button class="on">🏠<br>Home</button>
+    <button onclick="toast('Maps radius — versi live menyusul')">🗺️<br>Maps</button>
+    <button onclick="show('view-ticket')">🎟️<br>Tiket</button>
+    <button onclick="FakeDB.logout();location.href='index.html'">👤<br>Keluar</button>
+  </nav>
+</div>
+<script src="fake_db.js"></script>
+<script src="app.js"></script>
+<script>
+const s = FakeDB.require('pelanggan');
+const shops = [
+  { id: 'vintage', name: 'Vintage Cut Studio', rating: 4.8, dist: '0,8 km' },
+  { id: 'gentleman', name: 'Gentleman Prime', rating: 4.9, dist: '1,2 km' },
+];
+function show(id) {
+  ['view-home', 'view-detail', 'view-ticket'].forEach(v => document.getElementById(v).classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+  window.scrollTo(0, 0);
+}
+function renderHome() {
+  const q = LiveQueue.load();
+  document.getElementById('view-home').innerHTML = `
+    <h2 class="text-lg font-extrabold mt-4">Halo, ${s.name} 👋</h2>
+    <div class="card-dark">
+      <div class="text-xs opacity-70">ANTREAN AKTIF ${q.myTicket.code}</div>
+      <div class="text-2xl font-black">${q.myTicket.code} • ${q.myTicket.shop}</div>
+      <div class="text-sm opacity-70">Posisi ${q.myTicket.position} orang lagi • ETA ~${q.myTicket.etaMin} mnt</div>
+      <button class="btn-ghost mt-3" onclick="renderTicket();show('view-ticket')">Lihat E-Tiket →</button>
+    </div>
+    <div class="card"><b>POTONG TANPA ANTRI ✂️</b><br><span class="text-sm text-muted">Ambil nomor dari mana saja.</span></div>
+    <b>Rekomendasi Barbershop</b>
+    ${shops.map(t => `<div class="card" onclick="renderDetail('${t.id}')" style="cursor:pointer">
+      <b>${t.name}</b><br><span class="text-sm text-muted">★ ${t.rating} • ${t.dist} • Live ${q.nowServing}</span></div>`).join('')}`;
+}
+function renderDetail(id) {
+  const q = LiveQueue.load();
+  const shop = shops.find(x => x.id === id) || shops[0];
+  const waiting = q.waiting.length, eta = waiting * 5;
+  document.getElementById('view-detail').innerHTML = `
+    <button class="chip mt-4" onclick="show('view-home')">← Kembali</button>
+    <h2 class="text-lg font-extrabold mt-2">${shop.name}</h2>
+    <div class="badge-live mt-2">
+      <div><span class="text-xs text-muted">SEDANG</span><b class="text-mint">${q.nowServing}</b></div>
+      <div><span class="text-xs text-muted">ANTRI</span><b>${waiting} Orang</b></div>
+      <div><span class="text-xs text-muted">ESTIMASI</span><b>~${eta} mnt</b></div>
+    </div>
+    <div class="card mt-3"><b>Katalog Gaya & Kapster</b>
+      <div class="text-sm">💈 Rian "The Razor" — Low Fade Cut <span class="chip">Tersedia</span></div>
+      <div class="text-sm mt-1">💈 Anton FadeMaster — French Crop <span class="chip">Tersedia</span></div>
+    </div>
+    <button class="btn-primary" onclick="takeQueue()">Ambil Nomor Antrean</button>`;
+  show('view-detail');
+}
+function takeQueue() { renderTicket(); show('view-ticket'); toast('Nomor A-07 diambil (simulasi)'); }
+function renderTicket() {
+  const q = LiveQueue.load(); const t = q.myTicket;
+  const qr = 'https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=' + encodeURIComponent(t.code + '-' + s.phone);
+  document.getElementById('view-ticket').innerHTML = `
+    <button class="chip mt-4" onclick="show('view-home')">← Home</button>
+    <div class="card mt-3" style="text-align:center">
+      <div class="text-xs text-muted">E-TIKET ANTREAN</div>
+      <div class="text-sm">${t.shop}</div>
+      <div style="font-size:3rem;font-weight:900;color:#009E77">${t.code}</div>
+      <span class="chip">Posisi: ${t.position} orang lagi • ETA ~${t.etaMin} mnt</span><br><br>
+      <img src="${qr}" width="140" height="140" alt="QR ${t.code}">
+      <div class="text-xs text-muted mt-1">Tunjukkan QR ini ke kasir</div>
+    </div>
+    <div class="card text-sm">1. Menunggu di ruang tunggu<br>2. Datang saat H-2 dipanggil<br>3. Duduk di kursi kapster</div>
+    <button class="btn-ghost" onclick="toast('Pengingat WhatsApp AKTIF (simulasi)')">🔔 Pengingat WhatsApp: ON</button>
+    <button class="btn-ghost mt-2" style="color:#E5484D" onclick="toast('Antrean dibatalkan (simulasi)');LiveQueue.reset();renderHome();renderTicket();">Batalkan Antrean</button>
+    <button class="chip mt-2" onclick="renderTicket()">🔄 Refresh posisi live</button>`;
+}
+renderHome(); renderTicket();
+</script>
+</body>
+</html>

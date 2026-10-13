@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BarberAntri — Masuk</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="app-bg">
+<div class="phone">
+  <h1 class="text-xl font-extrabold mt-6">Selamat Datang di <span class="text-mint">BarberAntri</span></h1>
+  <p class="text-sm text-muted">Sistem antrean barbershop real-time. Satu link, dua peran.</p>
+
+  <div class="seg" id="roleSeg">
+    <button data-role="pelanggan" class="on">Masuk / Daftar Pelanggan</button>
+    <button data-role="mitra">Masuk / Daftar Mitra</button>
+  </div>
+
+  <label class="lbl">Nomor WhatsApp atau Email</label>
+  <input id="phone" class="inp" value="0812-8599-7721">
+  <label class="lbl">Kata Sandi</label>
+  <input id="pass" type="password" class="inp" placeholder="••••••">
+
+  <button class="btn-primary" onclick="doLogin()">Masuk / Selengkapnya →</button>
+  <p id="err" class="text-sm text-red-600 mt-2 hidden"></p>
+
+  <div class="flex gap-2 justify-center mt-3">
+    <button class="chip" onclick="fillDemo()">Google</button>
+    <button class="chip chip-mint" onclick="fillDemo()">WhatsApp</button>
+  </div>
+
+  <div class="demo-box">
+    <b>Akun demo:</b><br>
+    Pelanggan — HP <code>0812-8599-7721</code> / <code>demo123</code><br>
+    Mitra — HP <code>0812-0000-0001</code> / <code>mitra123</code>
+  </div>
+</div>
+<script src="fake_db.js"></script>
+<script src="app.js"></script>
+<script>
+let role = 'pelanggan';
+document.querySelectorAll('#roleSeg button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('#roleSeg button').forEach(x => x.classList.remove('on'));
+  b.classList.add('on'); role = b.dataset.role;
+  document.getElementById('phone').value = role === 'pelanggan' ? '0812-8599-7721' : '0812-0000-0001';
+});
+function fillDemo(){ document.getElementById('pass').value = role === 'pelanggan' ? 'demo123' : 'mitra123'; }
+function doLogin(){
+  const phone = document.getElementById('phone').value.trim();
+  const pass = document.getElementById('pass').value;
+  const r = FakeDB.login(phone, pass, role);
+  if (!r.ok) { const e = document.getElementById('err'); e.textContent = r.msg; e.classList.remove('hidden'); return; }
+  location.href = r.session.role === 'mitra' ? 'mitra.html' : 'pelanggan.html';
+}
+</script>
+</body>
+</html>
