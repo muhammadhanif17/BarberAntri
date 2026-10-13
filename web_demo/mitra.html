@@ -22,6 +22,7 @@
     <nav class="topnav"><b>💈 BarberAntri Mitra</b>
       <button onclick="go('dash')">Dashboard</button>
       <button onclick="go('aksi')">Aksi</button>
+      <button onclick="go('cari')">Cari</button>
       <button onclick="go('report')">Laporan</button>
       <button onclick="go('profil')">Profil</button>
     </nav>
@@ -35,7 +36,8 @@
     <nav class="bottomnav" id="pnav">
       <button data-v="v-dash" class="on"><span class="ic">📊</span>Dashboard</button>
       <button data-v="v-aksi"><span class="ic">⚡</span>Aksi</button>
-      <button data-v="v-cari" class="fab">🔍</button>
+      <button class="fab" onclick="go('walkin')">+</button>
+      <button data-v="v-cari"><span class="ic">🔍</span>Search</button>
       <button data-v="v-report"><span class="ic">📈</span>Laporan</button>
       <button data-v="v-profil"><span class="ic">👤</span>Profil</button>
     </nav>
@@ -61,6 +63,7 @@ const rp = n => 'Rp ' + Number(n).toLocaleString('id-ID');
 /* ---------- 1. DASHBOARD ---------- */
 function renderDash() {
   const q = Q();
+  const etaW = q.waiting.length * 3 + 2;
   const etaW = q.waiting.length * 7;
   document.getElementById('v-dash').innerHTML = `
     <div class="m-head"><div class="avatar">VC</div>
@@ -88,7 +91,7 @@ function renderDash() {
         <span class="text-muted">Kapster: ${w.kapster} • ${w.service}</span></div>
         ${i === 0
           ? `<button class="btn-primary" style="width:auto;margin:0 0 0 auto;padding:.5rem 1rem" onclick="callNext()">Panggil</button>`
-          : `<span class="text-xs text-muted" style="margin-left:auto">~${(i + 1) * 7 + 11} mnt</span>`}
+          : `<span class="text-xs text-muted" style="margin-left:auto">~${14 + i * 4} mnt</span>`}
       </div>`).join('') || '<div class="card">Kosong 🎉</div>'}
       <div class="text-sm mt-2"><b>Status Kapster Bertugas (3)</b></div>
       <div class="grid2 mt-2" style="grid-template-columns:repeat(3,1fr)">

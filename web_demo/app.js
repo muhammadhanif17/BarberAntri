@@ -1,12 +1,15 @@
 /* State simulasi "live queue" (pengganti Redis + WS untuk demo statis).
    Kunci simulasi di localStorage agar tab pelanggan & mitra saling update saat refresh. */
 const LiveQueue = (() => {
-  const KEY = 'barberantri_liveq';
+  const KEY = 'barberantri_liveq_v2';
   const seed = () => ({
     nowServing: 'A-06', served: 18, omzet: 990000, waiting: [
       { code: 'A-07', name: 'Budi Santoso', tag: 'App', service: 'Classic Pompadour', kapster: 'Rian', mine: true },
       { code: 'A-08', name: 'Farhan M', tag: 'Walk-in', service: 'Buzz Cut Fade', kapster: 'Anton' },
       { code: 'A-09', name: 'Rizky Aditya', tag: 'App', service: 'Hair Spa', kapster: 'Siapa Saja' },
+      { code: 'A-10', name: 'Dimas Prasetyo', tag: 'App', service: 'Low Fade Cut', kapster: 'Rian' },
+      { code: 'A-11', name: 'Eko Saputra', tag: 'Walk-in', service: 'French Crop', kapster: 'Anton' },
+      { code: 'A-12', name: 'Fajar Nugroho', tag: 'App', service: 'Buzz Cut Fade', kapster: 'Ben' },
     ],
     myTicket: { code: 'A-07', shop: 'Barbershop Vintage Cut', position: 4, etaMin: 15 }
   });
