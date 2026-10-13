@@ -21,9 +21,48 @@ body.app-bg { background: var(--bg); color: var(--ink); font-family: system-ui, 
 .bottomnav button { border: 0; background: none; font-size: .7rem; color: var(--muted); cursor: pointer; }
 .bottomnav button.on { color: var(--mint-d); font-weight: 800; }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
-@media (min-width: 900px) {
-  .phone { max-width: 60rem; }
-  .desk2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: start; }
-}
 .bar { border-radius: .4rem; }
 input, button { font-family: inherit; }
+
+/* E-tiket QR selalu tengah (Tailwind preflight membuat img display:block,
+   sehingga text-align:center induk tidak mempan — margin auto solusinya). */
+.ticket-qr { display: block; margin: 12px auto; }
+
+/* Navigasi desktop + branding login: sembunyi di HP */
+.topnav, .sidebar, .login-brand { display: none; }
+
+@media (min-width: 900px) {
+  .phone { max-width: 72rem; }
+
+  /* ---- LOGIN SPLIT (index.html) ---- */
+  .login-split { display: grid; grid-template-columns: 1.1fr 1fr; gap: 2rem; max-width: 64rem; margin: 4rem auto; align-items: stretch; }
+  .login-split .phone { max-width: none; margin: 0; background: #fff; border-radius: 1.5rem; box-shadow: 0 8px 30px rgba(16,35,28,.08); }
+  .login-brand { display: flex; flex-direction: column; justify-content: center; gap: 1rem; background: var(--ink); color: #fff; border-radius: 1.5rem; padding: 2.5rem; }
+  .login-brand h2 { font-size: 2rem; font-weight: 900; margin: 0; }
+  .login-brand h2 span { color: var(--mint); }
+  .login-brand ul { list-style: none; padding: 0; margin: 0; display: grid; gap: .6rem; font-size: .95rem; color: #D7E8E0; }
+
+  /* ---- PELANGGAN DESKTOP (pelanggan.html) ---- */
+  .bottomnav { display: none; }
+  .topnav { display: flex; gap: .4rem; align-items: center; background: #fff; border-radius: 1.25rem; padding: .7rem 1rem; margin-top: 1rem; box-shadow: 0 1px 6px rgba(16,35,28,.06); position: sticky; top: .75rem; z-index: 20; }
+  .topnav b { margin-right: auto; }
+  .topnav button { border: 0; background: none; font-weight: 700; color: var(--muted); cursor: pointer; padding: .5rem .9rem; border-radius: .7rem; }
+  .topnav button.on, .topnav button:hover { background: #E7F8F1; color: var(--mint-d); }
+  .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+  .home-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: .75rem; align-items: start; }
+  .detail-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: .75rem; align-items: start; }
+  .ticket-wrap { max-width: 34rem; margin: 0 auto; }
+  .ticket-qr { width: 180px; height: 180px; }
+
+  /* ---- MITRA DESKTOP (mitra.html): sidebar + area kerja ---- */
+  .partner-desk { display: grid; grid-template-columns: 230px 1fr; gap: 1.25rem; align-items: start; }
+  .sidebar { display: flex; flex-direction: column; gap: .35rem; background: #fff; border-radius: 1.25rem; padding: 1rem; position: sticky; top: .75rem; box-shadow: 0 1px 6px rgba(16,35,28,.06); }
+  .sidebar b { padding: .25rem .5rem; }
+  .sidebar button { text-align: left; border: 0; background: none; padding: .65rem .8rem; border-radius: .8rem; font-weight: 700; color: var(--muted); cursor: pointer; }
+  .sidebar button.on, .sidebar button:hover { background: #E7F8F1; color: var(--mint-d); }
+  .sidebar .btn-primary { margin-top: .5rem; }
+  .dash-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: .75rem; align-items: start; }
+  .qlist-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+  #walkinModal { align-items: center !important; }
+  #walkinModal .card { border-radius: 1.25rem !important; max-width: 28rem; }
+}

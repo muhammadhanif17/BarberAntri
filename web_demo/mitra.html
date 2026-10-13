@@ -8,11 +8,21 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body class="app-bg">
-<div class="phone">
+<div class="phone partner-desk">
+  <aside class="sidebar" id="snav">
+    <b>💈 BarberAntri <span class="text-muted" style="font-weight:400">Mitra</span></b>
+    <button data-v="v-dash" class="on">📊 Dashboard</button>
+    <button data-v="v-list">📋 Antrean</button>
+    <button data-v="v-report">📈 Laporan</button>
+    <button data-v="v-actions">⚙️ Aksi & Layanan</button>
+    <button class="btn-primary" onclick="openWalkin()">➕ Walk-in</button>
+  </aside>
+  <div class="partner-main">
   <div id="v-dash"></div>
   <div id="v-list" class="hidden"></div>
   <div id="v-actions" class="hidden"></div>
   <div id="v-report" class="hidden"></div>
+  </div>
   <nav class="bottomnav" id="pnav">
     <button data-v="v-dash" class="on">📊<br>Dashboard</button>
     <button data-v="v-list">📋<br>Antrean</button>
@@ -38,16 +48,20 @@ function show(id) {
   ['v-dash', 'v-list', 'v-actions', 'v-report'].forEach(v => document.getElementById(v).classList.add('hidden'));
   document.getElementById(id).classList.remove('hidden');
   document.querySelectorAll('#pnav button[data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === id));
+  document.querySelectorAll('#snav button[data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === id));
   window.scrollTo(0, 0);
 }
-document.querySelectorAll('#pnav button[data-v]').forEach(b => b.onclick = () => { renderAll(); show(b.dataset.v); });
+  document.querySelectorAll('#pnav button[data-v]').forEach(b => b.onclick = () => { renderAll(); show(b.dataset.v); });
+  document.querySelectorAll('#snav button[data-v]').forEach(b => b.onclick = () => { renderAll(); show(b.dataset.v); });
 function renderAll() { renderDash(); renderList(); renderActions(); renderReport(); }
 function renderDash() {
   const q = LiveQueue.load();
   document.getElementById('v-dash').innerHTML = `
     <h2 class="text-lg font-extrabold mt-4">💈 ${s.name}</h2>
     <span class="chip">MITRA AKTIF • Online Open</span>
-    <div class="card-dark mt-2" style="text-align:center">
+    <div class="dash-grid mt-2">
+    <div>
+    <div class="card-dark" style="text-align:center">
       <div class="text-xs opacity-70">ANTREAN SEDANG BERJALAN</div>
       <div style="font-size:2.5rem;font-weight:900">${q.nowServing}</div>
       <div class="text-sm opacity-70">Rian "The Razor" • Low Fade Cut</div>
@@ -60,10 +74,13 @@ function renderDash() {
       <button class="btn-ghost" onclick="openWalkin()">👤 Input Walk-in</button>
       <button class="btn-ghost" onclick="callNext()">📢 Panggil Next</button>
     </div>
+    </div>
+    <div>
     <div class="card mt-3"><b>Status Kursi & Kapster</b>
       <div class="text-sm">🟢 Rian — Sibuk (~12mnt)</div>
       <div class="text-sm">🟢 Anton — Siap Panggil</div>
-      <div class="text-sm">🟡 Ben — Break (15mnt)</div></div>`;
+      <div class="text-sm">🟡 Ben — Break (15mnt)</div></div>
+    </div></div>`;
 }
 function renderList() {
   const q = LiveQueue.load();
@@ -72,9 +89,11 @@ function renderList() {
     <div class="card" style="background:#FFEDED"><b style="color:#E5484D">${q.nowServing} — Sedang Cukur</b><br>
       <span class="text-sm text-muted">Mulai 10:15 WIB • Estimasi selesai 10:35</span></div>
     <b>Antrean Menunggu (${q.waiting.length})</b>
+    <div class="qlist-grid">
     ${q.waiting.map(w => `<div class="card text-sm"><b>${w.code}</b> • ${w.name}<br>
       <span class="text-muted">${w.service} • Kapster ${w.kapster}</span><br>
       <button class="chip mt-1" onclick="ticketDetail('${w.code}')">Kelola →</button></div>`).join('') || '<div class="card">Kosong 🎉</div>'}
+    </div>
     <button class="chip" onclick="renderAll()">🔄 Refresh</button>`;
 }
 function ticketDetail(code) {
