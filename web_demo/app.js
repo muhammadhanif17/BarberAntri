@@ -3,12 +3,10 @@
 const LiveQueue = (() => {
   const KEY = 'barberantri_liveq';
   const seed = () => ({
-    nowServing: 'A-04', waiting: [
-      { code: 'A-05', name: 'Tamu A-05', service: 'Low Fade Cut', kapster: 'Rian' },
-      { code: 'A-06', name: 'Tamu A-06', service: 'French Crop', kapster: 'Anton' },
-      { code: 'A-07', name: 'Gabriel', service: 'Low Fade Cut', kapster: 'Rian', mine: true },
-      { code: 'A-08', name: 'Gabriel Kevin', service: 'French Crop + Hair Wash', kapster: 'Anton' },
-      { code: 'A-09', name: 'Budi Santoso (Walk-in)', service: 'Classic Cut', kapster: 'Rian' },
+    nowServing: 'A-06', served: 18, omzet: 990000, waiting: [
+      { code: 'A-07', name: 'Budi Santoso', tag: 'App', service: 'Classic Pompadour', kapster: 'Rian', mine: true },
+      { code: 'A-08', name: 'Farhan M', tag: 'Walk-in', service: 'Buzz Cut Fade', kapster: 'Anton' },
+      { code: 'A-09', name: 'Rizky Aditya', tag: 'App', service: 'Hair Spa', kapster: 'Siapa Saja' },
     ],
     myTicket: { code: 'A-07', shop: 'Barbershop Vintage Cut', position: 4, etaMin: 15 }
   });
@@ -23,16 +21,22 @@ const LiveQueue = (() => {
     if (!s.waiting.length) return s;
     s.nowServing = s.waiting[0].code;
     s.waiting = s.waiting.slice(1);
+    s.served = (s.served || 0) + 1;
+    s.omzet = (s.omzet || 0) + 55000;
     const i = s.waiting.findIndex(t => t.mine);
     s.myTicket.position = i === -1 ? 0 : i + 1;
     s.myTicket.etaMin = Math.max(0, s.myTicket.position * 5);
     save(s); return s;
   }
+  function nextCode(s) {
+    const nums = [s.nowServing, ...s.waiting.map(w => w.code)]
+      .map(c => parseInt(String(c).split('-')[1], 10)).filter(n => !isNaN(n));
+    return 'A-' + String((Math.max(0, ...nums)) + 1).padStart(2, '0');
+  }
   function addWalkIn(name) {
     const s = load();
-    const n = 9 + s.waiting.filter(w => w.code.startsWith('A-')).length;
-    const code = 'A-' + String(n).padStart(2, '0');
-    s.waiting.push({ code, name: name + ' (Walk-in)', service: 'Classic Cut', kapster: 'Rian' });
+    const code = nextCode(s);
+    s.waiting.push({ code, name: name + ' (Walk-in)', tag: 'Walk-in', service: 'Classic Cut', kapster: 'Rian' });
     save(s); return code;
   }
   return { load, save, reset, callNext, addWalkIn };
