@@ -1,0 +1,19 @@
+{
+  "name": "queue-engine-service",
+  "version": "1.0.0",
+  "description": "BarberAntri Real-Time Queue Engine — Redis SortedSet + WebSocket + Walk-in sync",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test test/"
+  },
+  "dependencies": {
+    "@fastify/cors": "^9.0.1",
+    "dotenv": "^16.4.5",
+    "fastify": "^4.28.1",
+    "ioredis": "^5.3.2",
+    "pino": "^9.4.0",
+    "ws": "^8.17.1"
+  }
+}

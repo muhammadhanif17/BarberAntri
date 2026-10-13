@@ -1,0 +1,26 @@
+version: "3.8"
+services:
+  postgres:
+    image: postgis/postgis:15-3.3
+    environment:
+      POSTGRES_DB: barberantri
+      POSTGRES_USER: barber
+      POSTGRES_PASSWORD: barber123
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+    command: redis-server --appendonly yes
+    volumes: [redisdata:/data]
+  queue-engine:
+    build: ./backend_microservices/services/queue_engine_service
+    environment:
+      REDIS_URL: redis://redis:6379
+      QUEUE_PORT: 3003
+      AVG_DURATION_MIN: 15
+    ports: ["3003:3003"]
+    depends_on: [redis]
+volumes:
+  pgdata:
+  redisdata:
